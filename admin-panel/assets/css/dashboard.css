@@ -1,0 +1,85 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(15px);
+    padding: 25px;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #d4af37;
+}
+
+.sidebar a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+.header {
+    font-size: 22px;
+    margin-bottom: 30px;
+}
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(18px);
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.card h3 {
+    font-size: 15px;
+    color: #ccc;
+}
+
+.card p {
+    font-size: 32px;
+    margin-top: 10px;
+    color: #fff;
+}
+
+/* Decor section */
+.decor {
+    margin-top: 40px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 25px;
+}
