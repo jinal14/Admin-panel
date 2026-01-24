@@ -83,3 +83,26 @@ body {
     border-radius: 18px;
     padding: 25px;
 }
+
+
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #1e293b;
+    text-align: left;
+}
+
+.data-table th {
+    background: #020617;
+    color: #38bdf8;
+}
+
+.data-table tr:hover {
+    background: rgba(56, 189, 248, 0.08);
+}
