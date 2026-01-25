@@ -83,7 +83,7 @@ $projectCount = mysqli_fetch_assoc(mysqli_query($conn,
 </head>
 <body>
 
-<?php include 'layout/sidebar.php'; ?>
+<?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
     <h1>Welcome, <?php echo $_SESSION['username']; ?> 👋</h1>

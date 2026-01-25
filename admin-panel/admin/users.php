@@ -14,7 +14,7 @@ $result = mysqli_query($conn, "SELECT * FROM User");
 </head>
 <body>
 
-<?php include 'layout/sidebar.php'; ?>
+<?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
     <h2>All Users</h2>

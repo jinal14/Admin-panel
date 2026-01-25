@@ -17,7 +17,7 @@ $result = mysqli_query($conn,
 </head>
 <body>
 
-<?php include 'layout/sidebar.php'; ?>
+<?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
     <h2>Designers</h2>
