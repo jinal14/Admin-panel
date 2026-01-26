@@ -18,7 +18,7 @@
         <input type="date" name="dob" required>
 
         <!-- ✅ Profile Picture Upload -->
-        <input type="file" name="profile_pic" accept="image/*">
+       <input type="file" name="profile_pic" accept="image/*" required>
 
         <button type="submit">Sign Up</button>
     </form>

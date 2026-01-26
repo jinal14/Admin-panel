@@ -85,24 +85,92 @@ body {
 }
 
 
-
-.data-table {
+/* =========================
+   TABLE BASE
+========================= */
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
 }
 
-.data-table th, .data-table td {
-    padding: 12px;
-    border-bottom: 1px solid #1e293b;
+th, td {
+    padding: 12px 14px;
     text-align: left;
+    vertical-align: middle; /* FIX vertical alignment */
 }
 
-.data-table th {
-    background: #020617;
-    color: #38bdf8;
+/* Header */
+th {
+    background: linear-gradient(90deg, #0f2027, #0f2027, #0f2027);
+    color: #00e6ff;
+    font-weight: 600;
+    font-size: 14px;
 }
 
-.data-table tr:hover {
-    background: rgba(56, 189, 248, 0.08);
+/* Row hover */
+tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* =========================
+   PROFILE IMAGE COLUMN
+========================= */
+.profile-cell {
+    width: 70px;            /* FIX column width */
+    text-align: center;
+}
+
+/* Profile image */
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #1cc7d0;
+    box-shadow: 0 0 6px rgba(28, 199, 208, 0.6);
+}
+
+/* No image text */
+.no-img {
+    font-size: 12px;
+    color: #9aa;
+    font-style: italic;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons base */
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Edit button */
+.btn-edit {
+    background: #1abc9c;
+}
+
+.btn-edit:hover {
+    background: #16a085;
+}
+
+/* Delete button */
+.btn-delete {
+    background: #e74c3c;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
 }

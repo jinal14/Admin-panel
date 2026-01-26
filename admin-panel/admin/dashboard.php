@@ -106,8 +106,8 @@ $projectCount = mysqli_fetch_assoc(mysqli_query($conn,
     </div>
 
     <div class="intro">
-        ✨ Interior Design Control Center  
-        <br>Manage designers, projects & users from one place.
+        Interior Design Control Center  
+        <br>Manage designers, projects & users from one placeeee.
     </div>
 </div>
 
