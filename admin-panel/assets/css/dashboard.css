@@ -174,3 +174,101 @@ tr:hover {
 .btn-delete:hover {
     background: #c0392b;
 }
+
+
+/* Page title */
+.page-title {
+    margin-bottom: 20px;
+    font-size: 26px;
+    color: #00e6ff;
+}
+
+/* Card */
+.form-card {
+    max-width: 850px;
+    background: linear-gradient(145deg, #0f2027, #203a43);
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+/* Form grid */
+.designer-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+/* Full-width row (for buttons later) */
+.form-actions {
+    grid-column: span 2;
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+/* Labels */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #aeefff;
+}
+
+/* Inputs */
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #1cc7d0;
+    background: #081c24;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Input focus */
+.form-group input:focus {
+    border-color: #00e6ff;
+    box-shadow: 0 0 8px rgba(0,230,255,0.4);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+    transition: 0.2s ease;
+}
+
+/* Update */
+.btn-update {
+    background: #1abc9c;
+}
+
+.btn-update:hover {
+    background: #16a085;
+}
+
+/* Cancel */
+.btn-cancel {
+    background: #7f8c8d;
+}
+
+.btn-cancel:hover {
+    background: #6c7a7b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .designer-form {
+        grid-template-columns: 1fr;
+    }
+    .form-actions {
+        grid-column: span 1;
+    }
+}

@@ -3,10 +3,17 @@ session_start();
 include '../config.php';
 include 'admin_only.php';
 
-$id = $_GET['id'];
+$id = $_GET['id'] ?? '';
 
-$result = mysqli_query($conn,
-    "SELECT * FROM User WHERE id='$id' AND role='designer'");
+$stmt = mysqli_prepare(
+    $conn,
+    "SELECT id, name, email, username, phone 
+     FROM User 
+     WHERE id = ? AND role = 'designer'"
+);
+mysqli_stmt_bind_param($stmt, "s", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 $designer = mysqli_fetch_assoc($result);
 
@@ -27,25 +34,50 @@ if (!$designer) {
 <?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
-    <h2>Edit Designer</h2>
+    <h1 class="page-title">🎨 Edit Designer</h1>
 
-    <form method="POST" action="update_designer.php">
-        <input type="hidden" name="id" value="<?= $designer['id'] ?>">
+    <?php if (isset($_GET['error']) && $_GET['error'] === 'email_exists'): ?>
+        <div class="alert error">
+            ❌ Email already exists. Please use another email.
+        </div>
+    <?php endif; ?>
 
-        <label>Name</label>
-        <input type="text" name="name" value="<?= $designer['name'] ?>" required>
+    <div class="form-card">
+        <form method="POST" action="update_designer.php" class="designer-form">
 
-        <label>Email</label>
-        <input type="email" name="email" value="<?= $designer['email'] ?>" required>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($designer['id']) ?>">
 
-        <label>Username</label>
-        <input type="text" name="username" value="<?= $designer['username'] ?>" required>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name"
+                       value="<?= htmlspecialchars($designer['name']) ?>" required>
+            </div>
 
-        <label>Phone</label>
-        <input type="text" name="phone" value="<?= $designer['phone'] ?>">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email"
+                       value="<?= htmlspecialchars($designer['email']) ?>" required>
+            </div>
 
-        <button type="submit" class="btn btn-edit">Update</button>
-    </form>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username"
+                       value="<?= htmlspecialchars($designer['username']) ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone"
+                       value="<?= htmlspecialchars($designer['phone']) ?>" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-update">Update Designer</button>
+                <a href="designers.php" class="btn btn-cancel">Cancel</a>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 </body>

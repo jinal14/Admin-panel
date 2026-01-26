@@ -3,11 +3,18 @@ session_start();
 include '../config.php';
 include 'admin_only.php';
 
-/* Fetch designers */
-$result = mysqli_query($conn, "SELECT id, name, email, username, phone, profile_pic_url, created_at 
-                               FROM User 
-                               WHERE role = 'designer'");
+$sql = "
+SELECT 
+    u.id, u.name, u.email, u.username, u.phone, u.profile_pic_url, u.created_at,
+    d.experience_years, d.rating
+FROM User u
+LEFT JOIN Designer d ON u.id = d.id
+WHERE u.role='designer'
+";
+
+$result = mysqli_query($conn, $sql);
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -33,50 +40,45 @@ $result = mysqli_query($conn, "SELECT id, name, email, username, phone, profile_
                     <th>Username</th>
                     <th>Email</th>
                     <th>Phone</th>
-                    <th>Joined On</th>
+                    <th>Experience</th>
+                    <th>Rating</th>
+                    <th>Joined</th>
                     <th>Action</th>
                 </tr>
             </thead>
-
             <tbody>
-                <?php
-                $i = 1;
-                while ($row = mysqli_fetch_assoc($result)) {
-                ?>
+                <?php $i = 1;
+                while ($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
                         <td><?= $i++ ?></td>
-                        <td class="profile-col">
 
-                            <?php if (!empty($row['profile_pic_url'])): ?>
-                                <img
-                                    src="../<?php echo $row['profile_pic_url']; ?>"
-                                    class="profile-avatar"
-                                    alt="Profile">
+                        <td>
+                            <?php if ($row['profile_pic_url']): ?>
+                                <img src="../<?= $row['profile_pic_url'] ?>" class="profile-avatar">
                             <?php else: ?>
                                 <span class="no-img">No Image</span>
                             <?php endif; ?>
                         </td>
 
-
                         <td><?= htmlspecialchars($row['name']) ?></td>
                         <td><?= htmlspecialchars($row['username']) ?></td>
                         <td><?= htmlspecialchars($row['email']) ?></td>
                         <td><?= htmlspecialchars($row['phone']) ?></td>
+                        <td><?= $row['experience_years'] ?? 0 ?> yrs</td>
+                        <td><?= $row['rating'] ?? '0.0' ?></td>
                         <td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+
                         <td class="actions">
-                            <a href="edit_designer.php?id=<?= $row['id'] ?>" class="btn btn-edit">Edit</a>
-
-                            <a href="delete_designer.php?id=<?= $row['id'] ?>"
-                                class="btn btn-delete"
-                                onclick="return confirm('Are you sure you want to delete this designer?');">
-                                Delete
-                            </a>
+                            <a href="edit-designer.php?id=<?= $row['id'] ?>" class="btn btn-edit">Edit</a>
+                            <a href="delete-designer.php?id=<?= $row['id'] ?>"
+                                onclick="return confirm('Delete this designer?')"
+                                class="btn btn-delete">Delete</a>
                         </td>
-
                     </tr>
-                <?php } ?>
+                <?php endwhile; ?>
             </tbody>
         </table>
+
     </div>
 
 </body>
