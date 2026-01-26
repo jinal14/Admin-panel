@@ -69,8 +69,8 @@ $result = mysqli_query($conn, $sql);
                         <td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
 
                         <td class="actions">
-                            <a href="edit-designer.php?id=<?= $row['id'] ?>" class="btn btn-edit">Edit</a>
-                            <a href="delete-designer.php?id=<?= $row['id'] ?>"
+                            <a href="edit_designer.php?id=<?= $row['id'] ?>" class="btn btn-edit">Edit</a>
+                            <a href="delete_designer.php?id=<?= $row['id'] ?>"
                                 onclick="return confirm('Delete this designer?')"
                                 class="btn btn-delete">Delete</a>
                         </td>
