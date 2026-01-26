@@ -1,85 +1,36 @@
-<!-- <?php
-//include 'admin_only.php';
-//include '../config.php';
-
-/* Dashboard stats */
-//$userCount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM User"))['total'];
-//$designerCount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM User WHERE role='designer'"))['total'];
-//$projectCount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM Project"))['total'];
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
-</head>
-<body>
-
-<div class="sidebar">
-    <h2>Interior Admin</h2>
-    <a href="dashboard.php">🏠 Dashboard</a>
-    <a href="users.php">👤 Users</a>
-    <a href="designers.php">🎨 Designers</a>
-    <a href="projects.php">🏗 Projects</a>
-    <a href="../logout.php">🚪 Logout</a>
-</div>
-
-<div class="main">
-    <div class="header">
-        Welcome, <?php //echo $_SESSION['username'] ?? 'Admin'; ?> 👋
-    </div>
-
-    <div class="cards">
-        <div class="card">
-            <h3>Total Users</h3>
-            <p><?php //echo $userCount; ?></p>
-        </div>
-
-        <div class="card">
-            <h3>Total Designers</h3>
-            <p><?php //echo $designerCount; ?></p>
-        </div>
-
-        <div class="card">
-            <h3>Total Projects</h3>
-            <p><?php //echo $projectCount; ?></p>
-        </div>
-    </div>
-
-    <div class="decor">
-        <h3>✨ Interior Design Control Center</h3>
-        <p>
-            Manage designers, monitor projects, and control the entire
-            home‑decor ecosystem from one place.
-        </p>
-    </div>
-</div>
-
-</body>
-</html> -->
 
 
 <?php
 session_start();
 include '../config.php';
-include 'admin_only.php';
 
-$userCount = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) AS total FROM User"))['total'];
+/* Total users (clients) */
+$totalUsers = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM User WHERE role='user'")
+)['total'];
 
-$designerCount = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) AS total FROM User WHERE role='designer'"))['total'];
+/* Total designers */
+$totalDesigners = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM User WHERE role='designer'")
+)['total'];
 
-$projectCount = mysqli_fetch_assoc(mysqli_query($conn,
-    "SELECT COUNT(*) AS total FROM Project"))['total'];
+/* Pending designer requests */
+$pendingRequests = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM designer_request WHERE status='pending'")
+)['total'];
+
+/* Projects (optional) */
+$totalProjects = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM project")
+)['total'];
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
@@ -88,28 +39,71 @@ $projectCount = mysqli_fetch_assoc(mysqli_query($conn,
 <div class="main">
     <h1>Welcome, <?php echo $_SESSION['username']; ?> 👋</h1>
 
-    <div class="cards">
-        <div class="card">
-            <h3>Total Users</h3>
-            <p><?= $userCount ?></p>
-        </div>
+   <div class="dashboard-cards">
 
-        <div class="card">
-            <h3>Total Designers</h3>
-            <p><?= $designerCount ?></p>
-        </div>
-
-        <div class="card">
-            <h3>Total Projects</h3>
-            <p><?= $projectCount ?></p>
-        </div>
+    <div class="card">
+        <h4>Total Users</h4>
+        <span><?= $totalUsers ?></span>
     </div>
+
+    <div class="card">
+        <h4>Total Designers</h4>
+        <span><?= $totalDesigners ?></span>
+    </div>
+
+    <div class="card">
+        <h4>Pending Requests</h4>
+        <span><?= $pendingRequests ?></span>
+    </div>
+
+    <div class="card">
+        <h4>Total Projects</h4>
+        <span><?= $totalProjects ?></span>
+    </div>
+
+</div>
+
 
     <div class="intro">
         Interior Design Control Center  
         <br>Manage designers, projects & users from one placeeee.
     </div>
 </div>
+<script>
+const ctx = document.getElementById('dashboardChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Users', 'Designers', 'Pending Requests', 'Projects'],
+        datasets: [{
+            label: 'System Overview',
+            data: [
+                <?= $totalUsers ?>,
+                <?= $totalDesigners ?>,
+                <?= $pendingRequests ?>,
+                <?= $totalProjects ?>
+            ],
+            backgroundColor: [
+                '#00ffd5',
+                '#1abc9c',
+                '#f39c12',
+                '#3498db'
+            ],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
 
 </body>
 </html>

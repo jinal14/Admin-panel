@@ -6,13 +6,14 @@ include 'admin_only.php';
 $id = $_GET['id'];
 
 $sql = "
-SELECT 
+SELECT
     u.id, u.name, u.email, u.username, u.phone,
     d.bio, d.experience_years, d.portfolio_urls
 FROM User u
 LEFT JOIN Designer d ON u.id = d.id
 WHERE u.id=? AND u.role='designer'
 ";
+
 
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "s", $id);
@@ -56,40 +57,42 @@ if (!$designer) {
 
                 <div class="form-group">
                     <label>Name</label>
-                    <input type="text" name="name" value="<?= htmlspecialchars($designer['name']) ?>" required>
+                    <input type="text" name="name" value="<?= htmlspecialchars($designer['name']) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($designer['email']) ?>" required>
+                    <input type="email" name="email" value="<?= htmlspecialchars($designer['email']) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" value="<?= htmlspecialchars($designer['username']) ?>" required>
+                    <input type="text" name="username" value="<?= htmlspecialchars($designer['username']) ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Phone</label>
                     <input type="text" name="phone" value="<?= htmlspecialchars($designer['phone']) ?>">
                 </div>
-
-                <hr>
-
-                <div class="form-group">
+               
+<!-- 
+                <div class="form-group full">
                     <label>Bio</label>
-                    <textarea name="bio"><?= htmlspecialchars($designer['bio']) ?></textarea>
-                </div>
+                    <textarea name="bio"> </textarea>
+                </div> -->
 
                 <div class="form-group">
                     <label>Experience (years)</label>
-                    <input type="number" name="experience_years" value="<?= $designer['experience_years'] ?>">
+                    <input type="number" name="experience_years"
+                        value="<?= htmlspecialchars($designer['experience_years'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Portfolio URLs (comma separated)</label>
                     <input type="text" name="portfolio_urls"
-                        value="<?= htmlspecialchars(implode(',', json_decode($designer['portfolio_urls'] ?? '[]', true))) ?>">
+                        value="<?= htmlspecialchars(
+                                    implode(',', json_decode($designer['portfolio_urls'] ?? '[]', true))
+                                ) ?>">
                 </div>
 
                 <div class="form-actions">
