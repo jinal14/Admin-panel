@@ -3,9 +3,15 @@ session_start();
 include '../config.php';
 include 'admin_only.php';
 
-$result = mysqli_query($conn, "SELECT * FROM User");
-?>
+/* Fetch all users except admin (optional) */
+$result = mysqli_query(
+    $conn,
+    "SELECT id, name, email, username, role 
+     FROM User 
+     ORDER BY created_at DESC"
+);
 
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,25 +23,47 @@ $result = mysqli_query($conn, "SELECT * FROM User");
 <?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
-    <h2>All Users</h2>
+    <h1 class="page-title">👥 All Users</h1>
 
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Role</th>
-        </tr>
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th style="width:160px;">Actions</th>
+                </tr>
+            </thead>
 
-        <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-        <tr>
-            <td><?= $row['name'] ?></td>
-            <td><?= $row['email'] ?></td>
-            <td><?= $row['username'] ?></td>
-            <td><?= $row['role'] ?></td>
-        </tr>
-        <?php } ?>
-    </table>
+            <tbody>
+            <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['name']) ?></td>
+                    <td><?= htmlspecialchars($row['email']) ?></td>
+                    <td><?= htmlspecialchars($row['username']) ?></td>
+                    <td>
+                        <span class="role-badge role-<?= $row['role'] ?>">
+                            <?= ucfirst($row['role']) ?>
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <a href="edit-user.php?id=<?= $row['id'] ?>" class="btn btn-edit">Edit</a>
+
+                        <?php if ($row['role'] !== 'admin') { ?>
+                            <a href="delete-user.php?id=<?= $row['id'] ?>"
+                               class="btn btn-delete"
+                               onclick="return confirm('Are you sure you want to delete this user?')">
+                               Delete
+                            </a>
+                        <?php } ?>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 </body>
