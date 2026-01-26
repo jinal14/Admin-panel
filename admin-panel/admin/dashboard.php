@@ -92,10 +92,10 @@ while ($row = mysqli_fetch_assoc($ratingQuery)) {
 
 
 
-    <div class="intro">
+    <!-- <div class="intro">
         Interior Design Control Center  
         <br>Manage designers, projects & users from one placeeee.
-    </div>
+    </div> -->
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
