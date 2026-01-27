@@ -42,7 +42,7 @@ if (!$designer) {
     <?php include __DIR__ . '/layout/sidebar.php'; ?>
 
     <div class="main">
-        <h1 class="page-title">🎨 Edit Designer</h1>
+        <h1 class="page-title">Edit Designer</h1>
 
         <?php if (isset($_GET['error']) && $_GET['error'] === 'email_exists'): ?>
             <div class="alert error">

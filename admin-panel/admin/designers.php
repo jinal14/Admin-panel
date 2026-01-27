@@ -29,7 +29,7 @@ $result = mysqli_query($conn, $sql);
     <?php include __DIR__ . '/layout/sidebar.php'; ?>
 
     <div class="main">
-          <h1 class="page-title">🎨 Designers</h1>
+          <h1 class="page-title">Designers</h1>
  <div class="table-card">
         <table class="data-table">
             <thead>

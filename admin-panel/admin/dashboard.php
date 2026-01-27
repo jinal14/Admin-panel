@@ -49,7 +49,7 @@ while ($row = mysqli_fetch_assoc($ratingQuery)) {
 <?php include __DIR__ . '/layout/sidebar.php'; ?>
 
 <div class="main">
-    <h1>Welcome, <?php echo $_SESSION['username']; ?> 👋</h1>
+    <h1>Welcome, <?php echo $_SESSION['username']; ?> </h1>
 
   <div class="dashboard-cards">
     <div class="card">
@@ -77,13 +77,13 @@ while ($row = mysqli_fetch_assoc($ratingQuery)) {
 
     <!-- BAR CHART CARD -->
     <div class="chart-card">
-        <h3>📊 System Overview</h3>
+        <h3>System Overview</h3>
         <canvas id="overviewChart"></canvas>
     </div>
 
     <!-- PIE CHART CARD -->
     <div class="chart-card">
-        <h3>⭐ Client Feedback Ratings</h3>
+        <h3> Client Feedback Ratings</h3>
         <canvas id="ratingChart"></canvas>
     </div>
 
@@ -105,7 +105,7 @@ const overviewCtx = document.getElementById('overviewChart');
 new Chart(overviewCtx, {
     type: 'bar',
     data: {
-        labels: ['Users', 'Designers', 'Pending', 'Projects'],
+        labels: ['Client', 'Designers', 'Pending', 'Projects'],
         datasets: [{
             data: [
                 <?= $totalUsers ?>,
