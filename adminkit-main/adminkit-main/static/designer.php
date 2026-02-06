@@ -1,5 +1,30 @@
+<?php
+session_start();
+include 'config.php';
+
+$sql = "
+SELECT 
+    u.id,
+    u.name,
+    u.email,
+    u.username,
+    u.phone,
+    u.profile_pic_url,
+    u.created_at,
+    d.experience_years,
+    d.rating
+FROM `user` u
+LEFT JOIN `designer` d ON u.id = d.id
+WHERE u.role = 'designer'
+";
+
+$result = mysqli_query($conn, $sql);
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,58 +35,11 @@
 </head>
 
 <body>
-<div class="wrapper">
+	<div class="wrapper">
+		<?php include 'includes/sidebar.php'; ?>
 
-	<!-- SIDEBAR -->
-	<nav id="sidebar" class="sidebar js-sidebar">
-		<div class="sidebar-content js-simplebar">
-			<a class="sidebar-brand" href="#">
-				<span class="align-middle">VibeUp</span>
-			</a>
-
-			<ul class="sidebar-nav">
-				<li class="sidebar-header">Pages</li>
-
-				<li class="sidebar-item ">
-					<a class="sidebar-link" href="#">
-						<i data-feather="sliders"></i>
-						<span>Dashboard</span>
-					</a>
-				</li>
-
-				<li class="sidebar-item Active">
-					<a class="sidebar-link" href="#">
-						<i data-feather="codepen"></i>
-						<span>Designer</span>
-					</a>
-				</li>
-
-				<li class="sidebar-item">
-					<a class="sidebar-link" href="#">
-						<i data-feather="users"></i>
-						<span>Users</span>
-					</a>
-				</li>
-
-				<li class="sidebar-item">
-					<a class="sidebar-link" href="#">
-						<i data-feather="book"></i>
-						<span>Project</span>
-					</a>
-				</li>
-			</ul>
-		</div>
-	</nav>
-
-	<!-- MAIN -->
-	<div class="main">
-
-		<!-- NAVBAR -->
-		<nav class="navbar navbar-expand navbar-light navbar-bg">
-			<a class="sidebar-toggle js-sidebar-toggle">
-				<i class="hamburger"></i>
-			</a>
-
+		<div class="main">
+			<?php include 'includes/navbar.php'; ?>
 			<div class="navbar-collapse collapse">
 				<ul class="navbar-nav navbar-align">
 					<li class="nav-item dropdown">
@@ -78,90 +56,92 @@
 					</li>
 				</ul>
 			</div>
-		</nav>
+			</nav>
 
-		<!-- CONTENT -->
-		<main class="content">
-			<div class="container-fluid p-0">
+			<!-- CONTENT -->
+			<main class="content">
+				<div class="container-fluid p-0">
 
-				<h1 class="h3 mb-3"><strong>Analytics</strong> Dashboard</h1>
+					<h1 class="h3 mb-3"><strong>Analytics</strong> Dashboard</h1>
 
-				<div class="row">
-					<div class="col-12">
-						<div class="card flex-fill">
+					<div class="row">
+						<div class="col-12">
+							<div class="card flex-fill">
 
-							<div class="card-header">
-								<h5 class="card-title mb-0">Latest Projects</h5>
+								<div class="card-header">
+									<h5 class="card-title mb-0">Designers List</h5>
+								</div>
+
+								<div class="card-body p-0">
+									<table class="table table-hover my-0">
+										<thead>
+											<tr>
+												<th>#</th>
+												<th>Photo</th>
+												<th>Name</th>
+												<th>Username</th>
+												<th>Email</th>
+												<th>Phone</th>
+												<th>Experience</th>
+												<th>Rating</th>
+												<th>Joined</th>
+												<th>Actions</th>
+											</tr>
+										</thead>
+										<tbody>
+
+											<?php
+											$i = 1;
+											while ($row = mysqli_fetch_assoc($result)):
+											?>
+												<tr>
+													<td><?= $i++ ?></td>
+
+													<td>
+														<?php if (!empty($row['profile_pic_url'])): ?>
+															<img src="../<?= htmlspecialchars($row['profile_pic_url']) ?>"
+																class="profile-avatar"
+																style="width:40px;height:40px;border-radius:50%;">
+														<?php else: ?>
+															<span class="text-muted">No Image</span>
+														<?php endif; ?>
+													</td>
+
+													<td><?= htmlspecialchars($row['name']) ?></td>
+													<td><?= htmlspecialchars($row['username']) ?></td>
+													<td><?= htmlspecialchars($row['email']) ?></td>
+													<td><?= htmlspecialchars($row['phone']) ?></td>
+													<td><?= ($row['experience_years'] ?? 0) ?> yrs</td>
+													<td><?= number_format($row['rating'] ?? 0, 1) ?></td>
+													<td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+
+													<td>
+														<a href="edit_designer.php?id=<?= $row['id'] ?>"
+															class="btn btn-sm btn-primary">Edit</a>
+
+														<a href="delete_designer.php?id=<?= $row['id'] ?>"
+															onclick="return confirm('Delete this designer?')"
+															class="btn btn-sm btn-danger">Delete</a>
+													</td>
+												</tr>
+											<?php endwhile; ?>
+
+										</tbody>
+									</table>
+								</div>
+
+
 							</div>
-
-							<div class="card-body p-0">
-								<table class="table table-hover my-0">
-									<thead>
-										<tr>
-											<th>Name</th>
-											<th class="d-none d-xl-table-cell">Start Date</th>
-											<th class="d-none d-xl-table-cell">End Date</th>
-											<th>Status</th>
-											<th class="d-none d-md-table-cell">Assignee</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>Project Apollo</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-success">Done</span></td>
-											<td class="d-none d-md-table-cell">Vanessa Tucker</td>
-										</tr>
-										<tr>
-											<td>Project Fireball</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-danger">Cancelled</span></td>
-											<td class="d-none d-md-table-cell">William Harris</td>
-										</tr>
-										<tr>
-											<td>Project Hades</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-success">Done</span></td>
-											<td class="d-none d-md-table-cell">Sharon Lessman</td>
-										</tr>
-										<tr>
-											<td>Project Nitro</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-warning">In progress</span></td>
-											<td class="d-none d-md-table-cell">Vanessa Tucker</td>
-										</tr>
-										<tr>
-											<td>Project Phoenix</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-success">Done</span></td>
-											<td class="d-none d-md-table-cell">William Harris</td>
-										</tr>
-										<tr>
-											<td>Project X</td>
-											<td class="d-none d-xl-table-cell">01/01/2023</td>
-											<td class="d-none d-xl-table-cell">31/06/2023</td>
-											<td><span class="badge bg-success">Done</span></td>
-											<td class="d-none d-md-table-cell">Sharon Lessman</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-
 						</div>
 					</div>
+
 				</div>
+			</main>
 
-			</div>
-		</main>
-
+		</div>
 	</div>
-</div>
 
-<script src="js/app.js"></script>
+	<script src="js/app.js"></script>
 </body>
+
 </html>

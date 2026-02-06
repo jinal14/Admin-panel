@@ -1,3 +1,212 @@
+<?php
+session_start();
+include 'config.php';
+
+// ALTER TABLE `designer_request` ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+
+/* ============================
+   Helper Function
+============================ */
+function percentChange($current, $previous)
+{
+    if ($previous == 0) {
+        return $current > 0 ? 100 : 0;
+    }
+    return round((($current - $previous) / $previous) * 100, 2);
+}
+
+/* ============================
+   Projects (This Week vs Last Week)
+============================ */
+$thisWeekProjects = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM project
+        WHERE created_at >= CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$lastWeekProjects = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM project
+        WHERE created_at BETWEEN
+            CURDATE() - INTERVAL 14 DAY
+            AND CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$projectGrowth = percentChange($thisWeekProjects, $lastWeekProjects);
+
+/* ============================
+   Pending Requests (This Week vs Last Week)
+============================ */
+$thisWeekPending = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM designer_request
+        WHERE status = 'pending'
+        AND created_at >= CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$lastWeekPending = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM designer_request
+        WHERE status = 'pending'
+        AND created_at BETWEEN
+            CURDATE() - INTERVAL 14 DAY
+            AND CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$pendingGrowth = percentChange($thisWeekPending, $lastWeekPending);
+
+/* ============================
+   Users (Clients)
+============================ */
+$thisWeekUsers = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM user
+        WHERE role = 'user'
+        AND created_at >= CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$lastWeekUsers = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM user
+        WHERE role = 'user'
+        AND created_at BETWEEN
+            CURDATE() - INTERVAL 14 DAY
+            AND CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$userGrowth = percentChange($thisWeekUsers, $lastWeekUsers);
+
+/* ============================
+   Designers
+============================ */
+$thisWeekDesigners = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM user
+        WHERE role = 'designer'
+        AND created_at >= CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$lastWeekDesigners = mysqli_fetch_assoc(
+    mysqli_query($conn, "
+        SELECT COUNT(*) AS total
+        FROM user
+        WHERE role = 'designer'
+        AND created_at BETWEEN
+            CURDATE() - INTERVAL 14 DAY
+            AND CURDATE() - INTERVAL 7 DAY
+    ")
+)['total'];
+
+$designerGrowth = percentChange($thisWeekDesigners, $lastWeekDesigners);
+
+/* ============================
+   Dashboard Totals
+============================ */
+$totalUsers = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM user WHERE role='user'")
+)['total'];
+
+$totalDesigners = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM user WHERE role='designer'")
+)['total'];
+
+$pendingRequests = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM designer_request WHERE status='pending'")
+)['total'];
+
+$totalProjects = mysqli_fetch_assoc(
+    mysqli_query($conn, "SELECT COUNT(*) AS total FROM project")
+)['total'];
+
+/* ============================
+   Projects List
+============================ */
+$projects = mysqli_query(
+    $conn,
+    "SELECT name, description, status, currency, total_estimated_cost
+     FROM project"
+);
+
+/* ============================
+   Ratings Distribution
+============================ */
+$ratings = [0, 0, 0, 0, 0];
+
+$ratingQuery = mysqli_query(
+    $conn,
+    "SELECT rating, COUNT(*) AS total
+     FROM feedback
+     GROUP BY rating"
+);
+
+while ($row = mysqli_fetch_assoc($ratingQuery)) {
+    $ratings[$row['rating'] - 1] = (int)$row['total'];
+}
+
+/* ============================
+   Monthly Project Chart Data
+============================ */
+$monthlyData = array_fill(1, 12, 0); // Jan–Dec
+
+$monthlyQuery = mysqli_query(
+    $conn,
+    "SELECT MONTH(created_at) AS month, COUNT(*) AS total
+     FROM project
+     GROUP BY MONTH(created_at)"
+);
+
+while ($row = mysqli_fetch_assoc($monthlyQuery)) {
+    $monthlyData[(int)$row['month']] = (int)$row['total'];
+}
+
+$chartData = array_values($monthlyData);
+
+/* ============================
+   Project Status Distribution
+============================ */
+$statusCounts = [
+    'draft'       => 0,
+    'in_progress' => 0,
+    'completed'   => 0
+];
+
+$statusQuery = mysqli_query(
+    $conn,
+    "SELECT status, COUNT(*) AS total
+     FROM project
+     GROUP BY status"
+);
+
+while ($row = mysqli_fetch_assoc($statusQuery)) {
+    $statusCounts[$row['status']] = (int)$row['total'];
+}
+
+/* ============================
+   Recent Projects
+============================ */
+$recentProjects = mysqli_query(
+    $conn,
+    "SELECT name, created_at
+     FROM project
+     ORDER BY created_at DESC
+     LIMIT 5"
+);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,204 +231,66 @@
 
 <body>
 	<div class="wrapper">
-		<nav id="sidebar" class="sidebar js-sidebar">
-			<div class="sidebar-content js-simplebar">
-				<a class="sidebar-brand" href="index.php">
-          <span class="align-middle">VibeUp</span>
-        </a>
-
-				<ul class="sidebar-nav">
-					<li class="sidebar-header">
-						Pages
-					</li>
-
-					<li class="sidebar-item active">
-						<a class="sidebar-link" href="index.php">
-              <i class="align-middle" data-feather="sliders"></i> <span class="align-middle">Dashboard</span>
-            </a>
-					</li>
-
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="designer.php">
-              <i class="align-middle" data-feather="codepen"></i> <span class="align-middle">Designer</span>
-            </a>
-					</li>
-
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="users.php">
-              <i class="align-middle" data-feather="users"></i> <span class="align-middle">Users</span>
-            </a>
-					</li>
-					<li class="sidebar-item">
-						<a class="sidebar-link" href="project.php">
-              <i class="align-middle" data-feather="book"></i> <span class="align-middle">Project</span>
-            </a>
-					</li>
-
-					
-			</div>
-		</nav>
+		<?php include 'includes/sidebar.php'; ?>
 
 		<div class="main">
-			<nav class="navbar navbar-expand navbar-light navbar-bg">
-				<a class="sidebar-toggle js-sidebar-toggle">
-          <i class="hamburger align-self-center"></i>
-        </a>
+			<?php include 'includes/navbar.php'; ?>
 
-				<div class="navbar-collapse collapse">
-					<ul class="navbar-nav navbar-align">
-						<li class="nav-item dropdown">
-							<!-- <a class="nav-icon dropdown-toggle" href="#" id="alertsDropdown" data-bs-toggle="dropdown">
-								<div class="position-relative">
-									<i class="align-middle" data-feather="bell"></i>
-									<span class="indicator">4</span>
-								</div>
-							</a> -->
-							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
-								<!-- <div class="dropdown-menu-header">
-									4 New Notifications
-								</div> -->
-								<div class="list-group">
-									<a href="#" class="list-group-item">
-										<!-- <div class="row g-0 align-items-center">
-											<div class="col-2">
-												<i class="text-danger" data-feather="alert-circle"></i>
-											</div>
-											<div class="col-10">
-												<div class="text-dark">Update completed</div>
-												<div class="text-muted small mt-1">Restart server 12 to complete the update.</div>
-												<div class="text-muted small mt-1">30m ago</div>
-											</div>
-										</div> -->
-									</a>
-									<a href="#" class="list-group-item">
-										<div class="row g-0 align-items-center">
-											<!-- <div class="col-2">
-												<i class="text-warning" data-feather="bell"></i>
-											</div> -->
-											<div class="col-10">
-												<!-- <div class="text-dark">Lorem ipsum</div>
-												<div class="text-muted small mt-1">Aliquam ex eros, imperdiet vulputate hendrerit et.</div>
-												<div class="text-muted small mt-1">2h ago</div> -->
-											</div>
+			<div class="navbar-collapse collapse">
+				<ul class="navbar-nav navbar-align">
+					<li class="nav-item dropdown">
+						<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
+							<div class="list-group">
+								<a href="#" class="list-group-item">
+									<div class="row g-0 align-items-center">
+										<div class="col-2">
+											<i class="text-primary" data-feather="home"></i>
 										</div>
-									</a>
-									<a href="#" class="list-group-item">
-										<div class="row g-0 align-items-center">
-											<div class="col-2">
-												<i class="text-primary" data-feather="home"></i>
-											</div>
-											<div class="col-10">
-												<div class="text-dark">Login from 192.186.1.8</div>
-												<div class="text-muted small mt-1">5h ago</div>
-											</div>
+										<div class="col-10">
+											<div class="text-dark">Login from 192.186.1.8</div>
+											<div class="text-muted small mt-1">5h ago</div>
 										</div>
-									</a>
-									<a href="#" class="list-group-item">
-										<div class="row g-0 align-items-center">
-											<div class="col-2">
-												<i class="text-success" data-feather="user-plus"></i>
-											</div>
-											<div class="col-10">
-												<div class="text-dark">New connection</div>
-												<div class="text-muted small mt-1">Christina accepted your request.</div>
-												<div class="text-muted small mt-1">14h ago</div>
-											</div>
-										</div>
-									</a>
-								</div>
-								<div class="dropdown-menu-footer">
-									<a href="#" class="text-muted">Show all notifications</a>
-								</div>
-							</div>
-						</li>
-						<li class="nav-item dropdown">
-							<!-- <a class="nav-icon dropdown-toggle" href="#" id="messagesDropdown" data-bs-toggle="dropdown">
-								<div class="position-relative">
-									<i class="align-middle" data-feather="message-square"></i>
-								</div>
-							</a> -->
-							<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="messagesDropdown">
-								<!-- <div class="dropdown-menu-header">
-									<div class="position-relative">
-										4 New Messages
 									</div>
-								</div> -->
-								<div class="list-group">
-									<!-- <a href="#" class="list-group-item">
-										<div class="row g-0 align-items-center">
-											<div class="col-2">
-												<img src="img/avatars/avatar-5.jpg" class="avatar img-fluid rounded-circle" alt="Vanessa Tucker">
-											</div>
-											<div class="col-10 ps-2">
-												<div class="text-dark">Vanessa Tucker</div>
-												<div class="text-muted small mt-1">Nam pretium turpis et arcu. Duis arcu tortor.</div>
-												<div class="text-muted small mt-1">15m ago</div>
-											</div>
+								</a>
+								<a href="#" class="list-group-item">
+									<div class="row g-0 align-items-center">
+										<div class="col-2">
+											<i class="text-success" data-feather="user-plus"></i>
 										</div>
-									</a> -->
-									<a href="#" class="list-group-item">
-										<!-- <div class="row g-0 align-items-center">
-											<div class="col-2">
-												<img src="img/avatars/avatar-2.jpg" class="avatar img-fluid rounded-circle" alt="William Harris">
-											</div>
-											<div class="col-10 ps-2">
-												<div class="text-dark">William Harris</div>
-												<div class="text-muted small mt-1">Curabitur ligula sapien euismod vitae.</div>
-												<div class="text-muted small mt-1">2h ago</div>
-											</div>
-										</div> -->
-									</a>
-									<a href="#" class="list-group-item">
-										<!-- <div class="row g-0 align-items-center">
-											<div class="col-2">
-												<img src="img/avatars/avatar-4.jpg" class="avatar img-fluid rounded-circle" alt="Christina Mason">
-											</div>
-											<div class="col-10 ps-2">
-												<div class="text-dark">Christina Mason</div>
-												<div class="text-muted small mt-1">Pellentesque auctor neque nec urna.</div>
-												<div class="text-muted small mt-1">4h ago</div>
-											</div>
-										</div> -->
-									</a>
-									<a href="#" class="list-group-item">
-										<!-- <div class="row g-0 align-items-center">
-											<div class="col-2">
-												<img src="img/avatars/avatar-3.jpg" class="avatar img-fluid rounded-circle" alt="Sharon Lessman">
-											</div>
-											<div class="col-10 ps-2">
-												<div class="text-dark">Sharon Lessman</div>
-												<div class="text-muted small mt-1">Aenean tellus metus, bibendum sed, posuere ac, mattis non.</div>
-												<div class="text-muted small mt-1">5h ago</div>
-											</div>
-										</div> -->
-									</a>
-								</div>
-								<div class="dropdown-menu-footer">
-									<!-- <a href="#" class="text-muted">Show all messages</a> -->
-								</div>
+										<div class="col-10">
+											<div class="text-dark">New connection</div>
+											<div class="text-muted small mt-1">Christina accepted your request.</div>
+											<div class="text-muted small mt-1">14h ago</div>
+										</div>
+									</div>
+								</a>
 							</div>
-						</li>
-						<li class="nav-item dropdown">
-							<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
-                <i class="align-middle" data-feather="settings"></i>
-              </a>
+							<div class="dropdown-menu-footer">
+								<a href="#" class="text-muted">Show all notifications</a>
+							</div>
+						</div>
+					</li>
 
-							<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-                <img src="img/avatars/avatar.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark">Charles Hall</span>
-              </a>
-							<div class="dropdown-menu dropdown-menu-end">
-								<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-								<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#">Log out</a>
-							</div>
-						</li>
-					</ul>
-				</div>
+					<li class="nav-item dropdown">
+						<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
+							<i class="align-middle" data-feather="settings"></i>
+						</a>
+
+						<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
+							<img src="img/avatars/avatar.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark">Charles Hall</span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-end">
+							<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
+							<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
+							<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="#">Log out</a>
+						</div>
+					</li>
+				</ul>
+			</div>
 			</nav>
 
 			<main class="content">
@@ -245,10 +316,13 @@
 														</div>
 													</div>
 												</div>
-												<h1 class="mt-1 mb-3">2.382</h1>
+												<h1 class="mt-1 mb-3"><?php echo $totalProjects; ?></h1>
 												<div class="mb-0">
-													<span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i> -3.65% </span>
+													<span class="<?= $projectGrowth >= 0 ? 'text-success' : 'text-danger' ?>">
+														<?= $projectGrowth ?>%
+													</span>
 													<span class="text-muted">Since last week</span>
+
 												</div>
 											</div>
 										</div>
@@ -256,7 +330,7 @@
 											<div class="card-body">
 												<div class="row">
 													<div class="col mt-0">
-														<h5 class="card-title">Users</h5>
+														<h5 class="card-title">Clients</h5>
 													</div>
 
 													<div class="col-auto">
@@ -265,10 +339,13 @@
 														</div>
 													</div>
 												</div>
-												<h1 class="mt-1 mb-3">14.212</h1>
+												<h1 class="mt-1 mb-3"><?php echo $totalUsers; ?></h1>
 												<div class="mb-0">
-													<span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> 5.25% </span>
+													<span class="<?= $userGrowth >= 0 ? 'text-success' : 'text-danger' ?>">
+														<?= $userGrowth ?>%
+													</span>
 													<span class="text-muted">Since last week</span>
+
 												</div>
 											</div>
 										</div>
@@ -287,9 +364,11 @@
 														</div>
 													</div>
 												</div>
-												<h1 class="mt-1 mb-3">$21.300</h1>
+												<h1 class="mt-1 mb-3"><?php echo $totalDesigners; ?></h1>
 												<div class="mb-0">
-													<span class="text-success"> <i class="mdi mdi-arrow-bottom-right"></i> 6.65% </span>
+													<span class="<?= $designerGrowth >= 0 ? 'text-success' : 'text-danger' ?>">
+														<?= $designerGrowth ?>%
+													</span>
 													<span class="text-muted">Since last week</span>
 												</div>
 											</div>
@@ -298,7 +377,7 @@
 											<div class="card-body">
 												<div class="row">
 													<div class="col mt-0">
-														<h5 class="card-title">Request</h5>
+														<h5 class="card-title">Pending Request</h5>
 													</div>
 
 													<div class="col-auto">
@@ -307,9 +386,11 @@
 														</div>
 													</div>
 												</div>
-												<h1 class="mt-1 mb-3">64</h1>
+												<h1 class="mt-1 mb-3"><?php echo $pendingRequests; ?></h1>
 												<div class="mb-0">
-													<span class="text-danger"> <i class="mdi mdi-arrow-bottom-right"></i> -2.25% </span>
+													<span class="<?= $pendingGrowth >= 0 ? 'text-success' : 'text-danger' ?>">
+														<?= $pendingGrowth ?>%
+													</span>
 													<span class="text-muted">Since last week</span>
 												</div>
 											</div>
@@ -339,7 +420,8 @@
 							<div class="card flex-fill w-100">
 								<div class="card-header">
 
-									<h5 class="card-title mb-0">Browser Usage</h5>
+									<h5 class="card-title mb-0">Project Status</h5>
+
 								</div>
 								<div class="card-body d-flex">
 									<div class="align-self-center w-100">
@@ -352,19 +434,20 @@
 										<table class="table mb-0">
 											<tbody>
 												<tr>
-													<td>Chrome</td>
-													<td class="text-end">4306</td>
+													<td>Draft</td>
+													<td class="text-end"><?php echo $statusCounts['draft']; ?></td>
 												</tr>
 												<tr>
-													<td>Firefox</td>
-													<td class="text-end">3801</td>
+													<td>In Progress</td>
+													<td class="text-end"><?php echo $statusCounts['in_progress']; ?></td>
 												</tr>
 												<tr>
-													<td>IE</td>
-													<td class="text-end">1689</td>
+													<td>Completed</td>
+													<td class="text-end"><?php echo $statusCounts['completed']; ?></td>
 												</tr>
 											</tbody>
 										</table>
+
 									</div>
 								</div>
 							</div>
@@ -372,12 +455,28 @@
 						<div class="col-12 col-md-12 col-xxl-6 d-flex order-3 order-xxl-2">
 							<div class="card flex-fill w-100">
 								<div class="card-header">
-
-									<!-- <h5 class="card-title mb-0">Real-Time</h5> -->
+									<h5 class="card-title mb-0">Real-Time</h5>
 								</div>
 								<div class="card-body px-4">
-									<div id="world_map" style="height:350px;"></div>
+
+									<div class="activity-divider">
+										<span>Recent Activity</span>
+									</div>
+
+									<ul class="list-group list-group-flush">
+										<?php while ($p = mysqli_fetch_assoc($recentProjects)) { ?>
+											<li class="list-group-item px-0 activity-item">
+												<strong class="text-primary">New Project:</strong> <?php echo $p['name']; ?>
+												<br>
+												<small class="text-muted">
+													<?php echo date("d M Y, h:i A", strtotime($p['created_at'])); ?>
+												</small>
+											</li>
+										<?php } ?>
+									</ul>
 								</div>
+
+
 							</div>
 						</div>
 						<div class="col-12 col-md-6 col-xxl-3 d-flex order-1 order-xxl-1">
@@ -397,7 +496,7 @@
 						</div>
 					</div>
 
-					
+
 				</div>
 			</main>
 
@@ -406,7 +505,7 @@
 					<div class="row text-muted">
 						<div class="col-6 text-start">
 							<p class="mb-0">
-								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> - <a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>Bootstrap Admin Template</strong></a>								&copy;
+								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> - <a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>Bootstrap Admin Template</strong></a> &copy;
 							</p>
 						</div>
 						<div class="col-6 text-end">
@@ -432,106 +531,91 @@
 	</div>
 
 	<script src="js/app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/india.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/india.js"></script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
-			var ctx = document.getElementById("chartjs-dashboard-line").getContext("2d");
-			var gradient = ctx.createLinearGradient(0, 0, 0, 225);
-			gradient.addColorStop(0, "rgba(215, 227, 244, 1)");
-			gradient.addColorStop(1, "rgba(215, 227, 244, 0)");
-			// Line chart
+
 			new Chart(document.getElementById("chartjs-dashboard-line"), {
 				type: "line",
 				data: {
 					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 					datasets: [{
-						label: "Sales ($)",
-						fill: true,
-						backgroundColor: gradient,
+						label: "Projects Created",
+						data: <?php echo json_encode($chartData); ?>,
 						borderColor: window.theme.primary,
-						data: [
-							2115,
-							1562,
-							1584,
-							1892,
-							1587,
-							1923,
-							2566,
-							2448,
-							2805,
-							3438,
-							2917,
-							3327
-						]
+						backgroundColor: "transparent",
+						fill: false,
+						tension: 0.4,
+						pointRadius: 4,
+						pointHoverRadius: 6,
+						pointBackgroundColor: "#fff",
+						pointBorderColor: window.theme.primary,
+						pointBorderWidth: 3
 					}]
 				},
 				options: {
 					maintainAspectRatio: false,
-					legend: {
-						display: false
-					},
-					tooltips: {
-						intersect: false
-					},
-					hover: {
-						intersect: true
-					},
 					plugins: {
-						filler: {
-							propagate: false
+						legend: {
+							display: false
 						}
 					},
 					scales: {
-						xAxes: [{
-							reverse: true,
-							gridLines: {
-								color: "rgba(0,0,0,0.0)"
+						x: {
+							grid: {
+								display: false
 							}
-						}],
-						yAxes: [{
-							ticks: {
-								stepSize: 1000
+						},
+						y: {
+							beginAtZero: false,
+							grid: {
+								display: false
 							},
-							display: true,
-							borderDash: [3, 3],
-							gridLines: {
-								color: "rgba(0,0,0,0.0)"
+							ticks: {
+								stepSize: 1
 							}
-						}]
+						}
 					}
 				}
 			});
 		});
 	</script>
+
+
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
-			// Pie chart
 			new Chart(document.getElementById("chartjs-dashboard-pie"), {
-				type: "pie",
+				type: "doughnut",
 				data: {
-					labels: ["Chrome", "Firefox", "IE"],
+					labels: ["Draft", "In Progress", "Completed"],
 					datasets: [{
-						data: [4306, 3801, 1689],
-						backgroundColor: [
-							window.theme.primary,
-							window.theme.warning,
-							window.theme.danger
+						data: [
+							<?php echo $statusCounts['draft']; ?>,
+							<?php echo $statusCounts['in_progress']; ?>,
+							<?php echo $statusCounts['completed']; ?>
 						],
-						borderWidth: 5
+						backgroundColor: [
+							window.theme.warning,
+							window.theme.primary,
+							window.theme.success
+						],
+						borderWidth: 4
 					}]
 				},
 				options: {
-					responsive: !window.MSInputMethodContext,
 					maintainAspectRatio: false,
-					legend: {
-						display: false
-					},
-					cutoutPercentage: 75
+					cutout: "70%",
+					plugins: {
+						legend: {
+							display: false
+						}
+					}
 				}
 			});
 		});
 	</script>
+
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
 			// Bar chart
@@ -577,47 +661,47 @@
 		});
 	</script>
 	<script>
-document.addEventListener("DOMContentLoaded", function () {
+		document.addEventListener("DOMContentLoaded", function() {
 
-    var map = new jsVectorMap({
-        selector: "#world_map",
-        map: "india",
+			var map = new jsVectorMap({
+				selector: "#world_map",
+				map: "india",
 
-        zoomButtons: true,
-        zoomOnScroll: false,
+				zoomButtons: true,
+				zoomOnScroll: false,
 
-        regionStyle: {
-            initial: {
-                fill: "#e0e0e0",
-                stroke: "#ffffff",
-                strokeWidth: 1
-            },
-            hover: {
-                fill: "#4f46e5"   // hover color
-            },
-            selected: {
-                fill: "#1d4ed8"   // selected state color
-            }
-        },
+				regionStyle: {
+					initial: {
+						fill: "#e0e0e0",
+						stroke: "#ffffff",
+						strokeWidth: 1
+					},
+					hover: {
+						fill: "#4f46e5" // hover color
+					},
+					selected: {
+						fill: "#1d4ed8" // selected state color
+					}
+				},
 
-        regionsSelectable: true,
+				regionsSelectable: true,
 
-        // Highlight specific states
-        selectedRegions: [
-            "IN-MH", // Maharashtra
-            "IN-GJ", // Gujarat
-            "IN-RJ", // Rajasthan
-            "IN-UP", // Uttar Pradesh
-            "IN-DL"  // Delhi
-        ]
-    });
+				// Highlight specific states
+				selectedRegions: [
+					"IN-MH", // Maharashtra
+					"IN-GJ", // Gujarat
+					"IN-RJ", // Rajasthan
+					"IN-UP", // Uttar Pradesh
+					"IN-DL" // Delhi
+				]
+			});
 
-    window.addEventListener("resize", () => {
-        map.updateSize();
-    });
+			window.addEventListener("resize", () => {
+				map.updateSize();
+			});
 
-});
-</script>
+		});
+	</script>
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
