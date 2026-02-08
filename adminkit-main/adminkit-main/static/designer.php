@@ -98,14 +98,14 @@ $result = mysqli_query($conn, $sql);
 													<td><?= $i++ ?></td>
 
 													<td>
-														<?php if (!empty($row['profile_pic_url'])): ?>
-															<img src="../<?= htmlspecialchars($row['profile_pic_url']) ?>"
-																class="profile-avatar"
-																style="width:40px;height:40px;border-radius:50%;">
-														<?php else: ?>
-															<span class="text-muted">No Image</span>
-														<?php endif; ?>
-													</td>
+                                            <?php if (!empty($row['profile_pic_url'])): ?>
+                                                <img src="../<?= htmlspecialchars($row['profile_pic_url']) ?>"
+                                                    style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                                            <?php else: ?>
+                                                <img src="img/default-user.png"
+                                                    style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                                            <?php endif; ?>
+                                        </td>
 
 													<td><?= htmlspecialchars($row['name']) ?></td>
 													<td><?= htmlspecialchars($row['username']) ?></td>
