@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'config.php';
+include 'auth_admin.php';
 
 // ALTER TABLE `designer_request` ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
@@ -234,64 +235,9 @@ $recentProjects = mysqli_query(
 		<?php include 'includes/sidebar.php'; ?>
 
 		<div class="main">
-			<?php include 'includes/navbar.php'; ?>
+			<!-- <?php //include 'includes/navbar.php'; ?> -->
 
-			<div class="navbar-collapse collapse">
-				<ul class="navbar-nav navbar-align">
-					<li class="nav-item dropdown">
-						<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end py-0" aria-labelledby="alertsDropdown">
-							<div class="list-group">
-								<a href="#" class="list-group-item">
-									<div class="row g-0 align-items-center">
-										<div class="col-2">
-											<i class="text-primary" data-feather="home"></i>
-										</div>
-										<div class="col-10">
-											<div class="text-dark">Login from 192.186.1.8</div>
-											<div class="text-muted small mt-1">5h ago</div>
-										</div>
-									</div>
-								</a>
-								<a href="#" class="list-group-item">
-									<div class="row g-0 align-items-center">
-										<div class="col-2">
-											<i class="text-success" data-feather="user-plus"></i>
-										</div>
-										<div class="col-10">
-											<div class="text-dark">New connection</div>
-											<div class="text-muted small mt-1">Christina accepted your request.</div>
-											<div class="text-muted small mt-1">14h ago</div>
-										</div>
-									</div>
-								</a>
-							</div>
-							<div class="dropdown-menu-footer">
-								<a href="#" class="text-muted">Show all notifications</a>
-							</div>
-						</div>
-					</li>
-
-					<li class="nav-item dropdown">
-						<a class="nav-icon dropdown-toggle d-inline-block d-sm-none" href="#" data-bs-toggle="dropdown">
-							<i class="align-middle" data-feather="settings"></i>
-						</a>
-
-						<a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-							<img src="img/avatars/avatar.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall" /> <span class="text-dark">Charles Hall</span>
-						</a>
-						<div class="dropdown-menu dropdown-menu-end">
-							<a class="dropdown-item" href="pages-profile.html"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
-							<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="pie-chart"></i> Analytics</a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="index.html"><i class="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
-							<a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="#">Log out</a>
-						</div>
-					</li>
-				</ul>
-			</div>
-			</nav>
+			
 
 			<main class="content">
 				<div class="container-fluid p-0">
@@ -312,7 +258,7 @@ $recentProjects = mysqli_query(
 
 													<div class="col-auto">
 														<div class="stat text-primary">
-															<i class="align-middle" data-feather="truck"></i>
+															<i class="align-middle" data-feather="book"></i>
 														</div>
 													</div>
 												</div>
@@ -360,7 +306,7 @@ $recentProjects = mysqli_query(
 
 													<div class="col-auto">
 														<div class="stat text-primary">
-															<i class="align-middle" data-feather="dollar-sign"></i>
+															<i class="align-middle" data-feather="codepen"></i>
 														</div>
 													</div>
 												</div>
@@ -382,7 +328,7 @@ $recentProjects = mysqli_query(
 
 													<div class="col-auto">
 														<div class="stat text-primary">
-															<i class="align-middle" data-feather="shopping-cart"></i>
+															<i class="align-middle" data-feather="database"></i>
 														</div>
 													</div>
 												</div>
@@ -500,38 +446,12 @@ $recentProjects = mysqli_query(
 				</div>
 			</main>
 
-			<footer class="footer">
-				<div class="container-fluid">
-					<div class="row text-muted">
-						<div class="col-6 text-start">
-							<p class="mb-0">
-								<a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>AdminKit</strong></a> - <a class="text-muted" href="https://adminkit.io/" target="_blank"><strong>Bootstrap Admin Template</strong></a> &copy;
-							</p>
-						</div>
-						<div class="col-6 text-end">
-							<ul class="list-inline">
-								<li class="list-inline-item">
-									<a class="text-muted" href="https://adminkit.io/" target="_blank">Support</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="https://adminkit.io/" target="_blank">Help Center</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="https://adminkit.io/" target="_blank">Privacy</a>
-								</li>
-								<li class="list-inline-item">
-									<a class="text-muted" href="https://adminkit.io/" target="_blank">Terms</a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</footer>
+			
 		</div>
 	</div>
 
 	<script src="js/app.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/india.js"></script>
+	
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
@@ -616,92 +536,8 @@ $recentProjects = mysqli_query(
 		});
 	</script>
 
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			// Bar chart
-			new Chart(document.getElementById("chartjs-dashboard-bar"), {
-				type: "bar",
-				data: {
-					labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-					datasets: [{
-						label: "This year",
-						backgroundColor: window.theme.primary,
-						borderColor: window.theme.primary,
-						hoverBackgroundColor: window.theme.primary,
-						hoverBorderColor: window.theme.primary,
-						data: [54, 67, 41, 55, 62, 45, 55, 73, 60, 76, 48, 79],
-						barPercentage: .75,
-						categoryPercentage: .5
-					}]
-				},
-				options: {
-					maintainAspectRatio: false,
-					legend: {
-						display: false
-					},
-					scales: {
-						yAxes: [{
-							gridLines: {
-								display: false
-							},
-							stacked: false,
-							ticks: {
-								stepSize: 20
-							}
-						}],
-						xAxes: [{
-							stacked: false,
-							gridLines: {
-								color: "transparent"
-							}
-						}]
-					}
-				}
-			});
-		});
-	</script>
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-
-			var map = new jsVectorMap({
-				selector: "#world_map",
-				map: "india",
-
-				zoomButtons: true,
-				zoomOnScroll: false,
-
-				regionStyle: {
-					initial: {
-						fill: "#e0e0e0",
-						stroke: "#ffffff",
-						strokeWidth: 1
-					},
-					hover: {
-						fill: "#4f46e5" // hover color
-					},
-					selected: {
-						fill: "#1d4ed8" // selected state color
-					}
-				},
-
-				regionsSelectable: true,
-
-				// Highlight specific states
-				selectedRegions: [
-					"IN-MH", // Maharashtra
-					"IN-GJ", // Gujarat
-					"IN-RJ", // Rajasthan
-					"IN-UP", // Uttar Pradesh
-					"IN-DL" // Delhi
-				]
-			});
-
-			window.addEventListener("resize", () => {
-				map.updateSize();
-			});
-
-		});
-	</script>
+	
+	
 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
