@@ -59,6 +59,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
           <span>Designer Performance</span>
         </a>
       </li>
+
+      <li class="sidebar-item <?= ($currentPage == 'logout.php') ? 'active' : '' ?>">
+        <a class="sidebar-link" href="logout.php">
+          <i data-feather="log-out"></i>
+          <span>Logout</span>
+        </a>
+      </li>
       
     </ul>
   </div>
