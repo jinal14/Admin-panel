@@ -268,7 +268,7 @@ $recentProjects = mysqli_query(
 														<?= $projectGrowth ?>%
 													</span>
 													<span class="text-muted">Since last week</span>
-
+													<a href="project.php" class="btn btn-sm btn-primary w-100">View Projects</a>
 												</div>
 											</div>
 										</div>
@@ -291,7 +291,7 @@ $recentProjects = mysqli_query(
 														<?= $userGrowth ?>%
 													</span>
 													<span class="text-muted">Since last week</span>
-
+													<a href="user.php" class="btn btn-sm btn-primary w-100">View Users</a>
 												</div>
 											</div>
 										</div>
@@ -316,6 +316,7 @@ $recentProjects = mysqli_query(
 														<?= $designerGrowth ?>%
 													</span>
 													<span class="text-muted">Since last week</span>
+													<a href="designer.php" class="btn btn-sm btn-primary w-100">View Designers</a>
 												</div>
 											</div>
 										</div>
@@ -338,6 +339,7 @@ $recentProjects = mysqli_query(
 														<?= $pendingGrowth ?>%
 													</span>
 													<span class="text-muted">Since last week</span>
+													<a href="designer_requests.php" class="btn btn-sm btn-primary w-100">View Requests</a>
 												</div>
 											</div>
 										</div>
