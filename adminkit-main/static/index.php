@@ -288,6 +288,69 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
     .card-body {
         overflow: hidden;
     }
+
+    /* ===============================
+   MINI MODAL STYLING
+================================ */
+    .mini-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .mini-modal-overlay.show {
+        display: flex;
+    }
+
+    .mini-modal {
+        background: #ffffff;
+        width: 500px;
+        max-width: 90%;
+        padding: 25px;
+        border-radius: 14px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        position: relative;
+        animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .mini-close {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        border: none;
+        background: none;
+        font-size: 26px;
+        cursor: pointer;
+        color: #666;
+    }
+
+    .mini-close:hover {
+        color: #000;
+    }
+    #modalContent {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+
+
+
     </style>
 </head>
 
@@ -456,7 +519,8 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
                             <div class="card-grid">
 
                                 <!-- New Projects -->
-                                <a href="project.php" class="card-link">
+                                <!-- New Projects -->
+                                <a href="#" class="card-link" data-modal="new-projects">
                                     <div class="card stat-card">
                                         <div class="card-body">
                                             <div class="row">
@@ -476,7 +540,7 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
                                 </a>
 
                                 <!-- Project Completed -->
-                                <a href="project.php" class="card-link">
+                                <a href="#" class="card-link" data-modal="completed-projects">
                                     <div class="card stat-card">
                                         <div class="card-body">
                                             <div class="row">
@@ -496,7 +560,7 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
                                 </a>
 
                                 <!-- Under Process -->
-                                <a href="project.php" class="card-link">
+                                <a href="#" class="card-link" data-modal="under-process">
                                     <div class="card stat-card">
                                         <div class="card-body">
                                             <div class="row">
@@ -516,7 +580,7 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
                                 </a>
 
                                 <!-- Designer Online -->
-                                <a href="designer.php" class="card-link">
+                                <a href="#" class="card-link" data-modal="designers">
                                     <div class="card stat-card">
                                         <div class="card-body">
                                             <div class="row">
@@ -546,7 +610,18 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
 
 
         </div>
+        <!-- ===============================
+     MINI MODAL WINDOW
+================================ -->
+<!-- MINI MODAL WINDOW -->
+<div class="mini-modal-overlay" id="miniModal">
+    <div class="mini-modal">
+        <button class="mini-close" id="closeModal">×</button>
+
+        <h4 id="modalTitle"></h4>
+        <div id="modalContent"></div>
     </div>
+</div>
 
     <script src="js/app.js"></script>
 
@@ -651,7 +726,65 @@ $underProcessProjects = mysqli_fetch_assoc($underProcessQuery)['total'] ?? 0;
         });
     });
     </script>
+ <script>
+const modal = document.getElementById("miniModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalContent = document.getElementById("modalContent");
+const closeBtn = document.getElementById("closeModal");
 
+document.querySelectorAll(".card-link[data-modal]").forEach(card => {
+    card.addEventListener("click", e => {
+        e.preventDefault();
+
+        const type = card.dataset.modal;
+        modal.classList.add("show");
+        modalContent.innerHTML = "<p>Loading...</p>";
+
+        let title = "";
+        let url = "";
+
+        switch (type) {
+            case "new-projects":
+                title = "New Projects (Last 7 Days)";
+                url = "ajax_new_projects.php";
+                break;
+
+            case "completed-projects":
+                title = "";
+                url = "ajax_completed_projects.php";
+                break;
+
+            case "under-process":
+                title = "";
+                url = "ajax_under_process.php";
+                break;
+
+            case "designers":
+                title = "Designers Online";
+                url = ""; // optional later
+                break;
+        }
+
+        modalTitle.innerText = title;
+
+        if (!url) {
+            modalContent.innerHTML = "<p class='text-muted'>No data available.</p>";
+            return;
+        }
+
+        fetch(url)
+            .then(res => res.text())
+            .then(data => modalContent.innerHTML = data)
+            .catch(() => modalContent.innerHTML = "<p>Error loading data</p>");
+    });
+});
+
+closeBtn.onclick = () => modal.classList.remove("show");
+
+modal.onclick = e => {
+    if (e.target === modal) modal.classList.remove("show");
+};
+</script>
 </body>
 
 </html>
